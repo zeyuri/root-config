@@ -5,10 +5,16 @@ import {
 } from "single-spa-layout/server";
 import _ from "lodash";
 import { getImportMaps } from "single-spa-web-server-utils";
+import azureFunctionHandler from "azure-aws-serverless-express";
+import express from "express";
+import path from "path";
+import morgan from "morgan";
 
 const serverLayout = constructServerLayout({
   filePath: "server/views/index.html",
 });
+
+app.use(express.static("static"));
 
 app.use("*", (req, res, next) => {
   const developmentMode = process.env.NODE_ENV === "development";
@@ -87,3 +93,9 @@ app.use("*", (req, res, next) => {
       res.status(500).send("A server error occurred");
     });
 });
+
+app.use(morgan("tiny"));
+app.set("view engine", "ejs");
+app.set("views", path.resolve(process.cwd(), "./server/views"));
+
+export default azureFunctionHandler(app);
